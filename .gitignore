@@ -1,6 +1,5 @@
 *.iml
 .gradle
-.idea/
 /libraries/opencv/build.gradle
 /libraries/opencv/build/*
 build.gradle
