@@ -1,6 +1,7 @@
 package ferozepurwale.run;
 
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -18,21 +19,23 @@ import com.squareup.okhttp.RequestBody;
 
 import java.io.IOException;
 
-public class PlayScreen extends AppCompatActivity {
+public class StartGameScreen extends AppCompatActivity {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "PlayScreen";
     private static final String START_URL = "http://10.196.16.16:8080/start/";
     private final OkHttpClient client = new OkHttpClient();
     private Boolean stopStartRequests = false;
-    Handler requestsHandler = new Handler();
+    Handler handler = new Handler();
     private final int delay = 5000; //milliseconds
 
     EditText name, email, opponent;
-    TextView nameTextView, emailTextView, opponentTextView, gameStartText;
+    TextView nameTextView, emailTextView, opponentTextView, gameStartText, start;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_play_screen);
         name = (EditText) findViewById(R.id.name);
         email = (EditText) findViewById(R.id.email);
         opponent = (EditText) findViewById(R.id.opponent);
@@ -40,10 +43,11 @@ public class PlayScreen extends AppCompatActivity {
         emailTextView = (TextView) findViewById(R.id.emailTextView);
         opponentTextView = (TextView) findViewById(R.id.opponentTextView);
         gameStartText = (TextView) findViewById(R.id.gameStartText);
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_play_screen);
+        start = (TextView) findViewById(R.id.start);
 
         gameStartText.setVisibility(View.INVISIBLE);
+        opponent.setVisibility(View.INVISIBLE);
+        opponentTextView.setVisibility(View.INVISIBLE);
 
     }
 
@@ -82,8 +86,8 @@ public class PlayScreen extends AppCompatActivity {
                     int wait = jobj.get("wait").getAsInt();
 
                     if (wait>0) {
-                        startCountdown(opponent_name, wait);
                         stopStartRequests = true;
+                        startCountdown(opponent_name, wait);
                     }
                 }
             }
@@ -91,27 +95,65 @@ public class PlayScreen extends AppCompatActivity {
     }
 
     private void startCountdown(String opponent_name, int wait) {
-        email.setVisibility(View.INVISIBLE);
-        emailTextView.setVisibility(View.INVISIBLE);
-        email.setEnabled(false);
-        gameStartText.setVisibility(View.VISIBLE);
-        gameStartText.setText("Loading...");
+        MyRunnable runnable = new MyRunnable();
+        runnable.setData(opponent_name, wait);
+        runOnUiThread(runnable);
 
-        gameStartText.setText("Game starts in...");
-        opponent.setVisibility(View.VISIBLE);
-        opponentTextView.setVisibility(View.VISIBLE);
-        opponent.setText(opponent_name);
-        opponent.setEnabled(false);
 
+    }
+
+    public class MyRunnable implements Runnable {
+        private String opponent_name;
+        private int wait;
+        private void setData(String opponent_name, int wait) {
+            this.opponent_name = opponent_name;
+            this.wait = wait;
+        }
+
+        public void run() {
+            Log.d(TAG, "aaya");
+            gameStartText.setText("Game starts in...");
+            opponent.setVisibility(View.VISIBLE);
+            opponentTextView.setVisibility(View.VISIBLE);
+            opponent.setText(opponent_name);
+            opponent.setEnabled(false);
+            start.setEnabled(false);
+
+            new CountDownTimer(wait*1000, 1000) {
+
+                public void onTick(long millisUntilFinished) {
+                    start.setText(String.valueOf(millisUntilFinished / 1000));
+                }
+
+                public void onFinish() {
+                    Log.d(TAG, "done");
+                }
+
+            }.start();
+
+        }
     }
 
     public void onStartGameClick(View view) {
-        requestsHandler.postDelayed(new Runnable(){
-            public void run(){
-                startGame(name.getText().toString(), email.getText().toString());
-                if (!stopStartRequests)
-                    requestsHandler.postDelayed(this, delay);
-            }
-        }, delay);
+
+        email.setVisibility(View.INVISIBLE);
+        emailTextView.setVisibility(View.INVISIBLE);
+        email.setEnabled(false);
+        name.setEnabled(false);
+        gameStartText.setVisibility(View.VISIBLE);
+        gameStartText.setText("Finding players online...");
+        requestHandler.run();
     }
+
+    public Runnable requestHandler = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "call");
+            startGame(name.getText().toString(), email.getText().toString());
+            if (!stopStartRequests)
+                handler.postDelayed(this, delay);
+            else
+                handler.removeCallbacks(requestHandler);
+        }
+    };
 }
