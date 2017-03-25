@@ -29,27 +29,6 @@ public class MainActivity extends AppCompatActivity {
 //        RequestBody body = RequestBody.create(JSON, jsonData);
 //        Log.d(TAG, "My Events JSON = " + jsonData);
 
-        Request request = new com.squareup.okhttp.Request.Builder()
-                .url(GET_SCORE)
-                .build();
-
-        client.newCall(request).enqueue(new Callback() {
-            @Override
-            public void onFailure(com.squareup.okhttp.Request request, IOException throwable) {
-                throwable.printStackTrace();
-            }
-
-            @Override
-            public void onResponse(com.squareup.okhttp.Response response) throws IOException {
-                if (!response.isSuccessful())
-                    throw new IOException("Unexpected code " + response);
-                else {
-                    final String jsonData = response.body().string();
-                    Log.d(TAG, "Response from " + GET_SCORE + ": " + jsonData);
-                }
-            }
-        });
-
     }
 
     public void buttonClick(View view) {
