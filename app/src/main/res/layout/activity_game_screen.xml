@@ -32,7 +32,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/gameImage"
         android:layout_centerHorizontal="true"
-
+        android:onClick="dispatchTakePictureIntent"
         android:id="@+id/clickbutton" />
 
     <!--<RelativeLayout-->
