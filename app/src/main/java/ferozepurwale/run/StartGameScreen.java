@@ -1,5 +1,6 @@
 package ferozepurwale.run;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -127,6 +128,10 @@ public class StartGameScreen extends AppCompatActivity {
 
                 public void onFinish() {
                     Log.d(TAG, "done");
+                    Intent intent = new Intent(StartGameScreen.this, GameScreen.class);
+                    intent.putExtra("opponent_name", opponent_name);
+                    startActivity(intent);
+                    finish();
                 }
 
             }.start();
