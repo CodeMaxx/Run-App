@@ -1,5 +1,8 @@
 *.iml
 .gradle
+/libraries/opencv/build.gradle
+/libraries/opencv/build/*
+build.gradle
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
