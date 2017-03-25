@@ -24,7 +24,7 @@ public class StartGameScreen extends AppCompatActivity {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     private static final String TAG = "PlayScreen";
-    private static final String START_URL = "http://10.196.16.16:8080/start/";
+    private static final String START_URL = "http://10.196.13.169:8080/start/";
     private final OkHttpClient client = new OkHttpClient();
     private Boolean stopStartRequests = false;
     Handler handler = new Handler();
@@ -118,7 +118,6 @@ public class StartGameScreen extends AppCompatActivity {
             opponentTextView.setVisibility(View.VISIBLE);
             opponent.setText(opponent_name);
             opponent.setEnabled(false);
-            start.setEnabled(false);
 
             new CountDownTimer(wait*1000, 1000) {
 
@@ -148,6 +147,7 @@ public class StartGameScreen extends AppCompatActivity {
         name.setEnabled(false);
         gameStartText.setVisibility(View.VISIBLE);
         gameStartText.setText("Finding players online...");
+        start.setEnabled(false);
         requestHandler.run();
     }
 

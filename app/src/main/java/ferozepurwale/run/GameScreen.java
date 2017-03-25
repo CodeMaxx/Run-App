@@ -10,6 +10,7 @@ import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -39,13 +40,16 @@ public class GameScreen extends AppCompatActivity {
 
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     static final int REQUEST_TAKE_PHOTO = 1;
-    private static final String PHOTO_URL = "http://10.196.16.16:8080/photo/";
-    private static final String myDir = Environment.getExternalStorageDirectory() + "/Run/";
-    private static final String REFRESH_URL = "http://10.196.16.16:8080/refresh/";
+    private static final String PHOTO_URL = "http://10.196.13.169:8080/photo/";
+    private static final String myDir = Environment.getExternalStorageDirectory() + "/Run";
+    private static final String REFRESH_URL = "http://10.196.13.169:8080/refresh/";
     private static final String TAG = "GameScreen";
+    private static final String END_URL = "http://10.196.13.169:8080/end/";
     private final OkHttpClient client = new OkHttpClient();
     private final int delay = 5000; //milliseconds
     Handler handler = new Handler();
+    Timer stopwatchTimer = new Timer();
+
     public Runnable refreshRequestHandler = new Runnable() {
         @Override
         public void run() {
@@ -116,7 +120,8 @@ public class GameScreen extends AppCompatActivity {
     private String opponent_name;
     private long startTime = 0;
     private ImageView gameImage;
-    private TextView my_scoreTV, opponent_scoreTV;
+    private TextView my_scoreTV, opponent_scoreTV, winTV;
+    private Button click;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -128,6 +133,9 @@ public class GameScreen extends AppCompatActivity {
 
         my_scoreTV = (TextView) findViewById(R.id.my_score);
         opponent_scoreTV = (TextView) findViewById(R.id.opponent_score);
+        winTV = (TextView) findViewById(R.id.winTV);
+        winTV.setVisibility(View.INVISIBLE);
+        click = (Button) findViewById(R.id.clickbutton);
 
         startTimer();
 
@@ -179,38 +187,47 @@ public class GameScreen extends AppCompatActivity {
                     int total_photos = jobj.get("total_photos").getAsInt();
                     int win = jobj.get("win").getAsInt();
 
-                    String filename = myDir + "temp.jpg";
-                    Bitmap b = Picasso.with(GameScreen.this).load(photo_url).get();
-                    FileOutputStream out = null;
-                    try {
-                        out = new FileOutputStream(filename);
-                        b.compress(Bitmap.CompressFormat.JPEG, 85, out);
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    } finally {
+                    if (win == 0) {
+                        String filename = myDir + "/temp.jpg";
+                        Bitmap b = Picasso.with(GameScreen.this).load(photo_url).get();
+                        FileOutputStream out = null;
                         try {
-                            if (out != null) {
-                                out.close();
+                            File folder = new File(myDir);
+                            if (!folder.exists()) {
+                                folder.mkdir();
                             }
-                        } catch (IOException e) {
+                            out = new FileOutputStream(filename);
+                            b.compress(Bitmap.CompressFormat.JPEG, 85, out);
+                        } catch (Exception e) {
                             e.printStackTrace();
+                        } finally {
+                            try {
+                                if (out != null) {
+                                    out.close();
+                                }
+                            } catch (IOException e) {
+                                e.printStackTrace();
+                            }
                         }
+
+                        PhotoRunnable runnable = new PhotoRunnable();
+                        runnable.setData(photo_url, total_photos);
+
+                        runOnUiThread(runnable);
+
+                        handler.removeCallbacks(refreshRequestHandler);
+                        refreshRequestHandler.run();
+                    } else {
+                        EndGameRunnable runnable = new EndGameRunnable();
+                        runnable.setData(win, total_photos);
+                        runOnUiThread(runnable);
                     }
-
-                    PhotoRunnable runnable = new PhotoRunnable();
-                    runnable.setData(photo_url, total_photos);
-
-                    runOnUiThread(runnable);
-
-                    handler.removeCallbacks(refreshRequestHandler);
-                    refreshRequestHandler.run();
                 }
             }
         });
     }
 
     private void startTimer() {
-        Timer stopwatchTimer = new Timer();
         startTime = System.currentTimeMillis();
         stopwatchTimer.scheduleAtFixedRate(new TimerTask() {
             @Override
@@ -255,9 +272,12 @@ public class GameScreen extends AppCompatActivity {
 //                        imageView.setImageBitmap(bitmap);
                         ImageCompare imageCompare = new ImageCompare();
                         Log.d("PATH", myDir);
-                        Bitmap referenceBitmap = imageCompare.loadImageFromStorage(new File(myDir + "temp.jpg"));
-                        String isSame = imageCompare.compareImages(bitmap, referenceBitmap);
+                        Bitmap referenceBitmap = imageCompare.loadImageFromStorage(new File(myDir + "/temp.jpg"));
+                        Boolean isSame = imageCompare.compareImages(bitmap, referenceBitmap);
                         Toast.makeText(this, String.valueOf(isSame), Toast.LENGTH_LONG).show();
+                        if (true) {
+                            getPhoto();
+                        }
                     } catch (Exception e) {
                         Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT)
                                 .show();
@@ -295,6 +315,65 @@ public class GameScreen extends AppCompatActivity {
             my_scoreTV.setText((score > 0 ? score : 0) + "/" + total);
             opponent_scoreTV.setText((opponent_score > 0 ? score : 0) + "/" + total);
         }
+    }
+
+    public class EndGameRunnable implements Runnable {
+        private int win, total;
+
+        private void setData(int win, int total) {
+            this.win = win;
+            this.total = total;
+        }
+
+        public void run() {
+            handler.removeCallbacks(refreshRequestHandler);
+            stopwatchTimer.cancel();
+            gameImage.setVisibility(View.INVISIBLE);
+            click.setVisibility(View.INVISIBLE);
+            winTV.setVisibility(View.VISIBLE);
+
+            if (win==1) {
+                winTV.setText("You Win");
+                my_scoreTV.setText(total + "/" + total);
+            } else if (win==-1) {
+                winTV.setText(opponent_name + " wins");
+                opponent_scoreTV.setText(total + "/" + total);
+            }
+            endGame();
+
+        }
+    }
+
+    private void endGame() {
+        String jsonData = "{" + "\"name\": \"" + "Nihal Singh" + "\","
+                + "\"email\": \"" + "nihal.111@gmail.com" + "\""
+                + "}";
+
+        Log.d(TAG, jsonData);
+
+        RequestBody body = RequestBody.create(JSON, jsonData);
+
+        Request request = new com.squareup.okhttp.Request.Builder()
+                .url(END_URL)
+                .post(body)
+                .build();
+
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(com.squareup.okhttp.Request request, IOException throwable) {
+                throwable.printStackTrace();
+            }
+
+            @Override
+            public void onResponse(com.squareup.okhttp.Response response) throws IOException {
+                if (!response.isSuccessful())
+                    throw new IOException("Unexpected code " + response);
+                else {
+                    final String jsonData = response.body().string();
+                    Log.d(TAG, "Response from " + END_URL + ": " + jsonData);
+                }
+            }
+        });
     }
 
 }

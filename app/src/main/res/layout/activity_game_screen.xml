@@ -134,5 +134,20 @@
         android:layout_alignLeft="@+id/textView12"
         android:layout_alignStart="@+id/textView12" />
 
+    <TextView
+        android:text="Akash Trehan Wins"
+        android:textColor="#3e2723"
+        android:textSize="80dp"
+        android:gravity="center"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/stopwatch_view"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:id="@+id/winTV"
+        android:layout_above="@+id/textView5"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
 
 </RelativeLayout>

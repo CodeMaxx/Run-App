@@ -24,14 +24,14 @@ import java.util.ArrayList;
 
 public class ImageCompare {
 
-    public String compareImages(Bitmap b1, Bitmap b2) {
+    public Boolean compareImages(Bitmap b1, Bitmap b2) {
         b1 = Bitmap.createScaledBitmap(b1, 500, 500, true);
         b2 = Bitmap.createScaledBitmap(b2, 500, 500, true);
         return doStuff(b1, b2);
     }
 
 
-    private String doStuff(Bitmap b1, Bitmap b2) {
+    private Boolean doStuff(Bitmap b1, Bitmap b2) {
         Mat img1 = new Mat();
         Utils.bitmapToMat(b1, img1);
         Mat img2 = new Mat();
@@ -62,8 +62,8 @@ public class ImageCompare {
 
         double compare = Imgproc.compareHist(hist1, hist2, Imgproc.CV_COMP_CHISQR);
         Log.d("ImageComparator", "compare: " + compare);
-        //return (compare >= 0 && compare < 2200);
-        return String.valueOf(compare) + String.valueOf(compare>=0 && compare<3000);
+        return (compare >= 0 && compare < 2500);
+//        return String.valueOf(compare) + String.valueOf(compare>=0 && compare<3000);
     }
 
     @Nullable
