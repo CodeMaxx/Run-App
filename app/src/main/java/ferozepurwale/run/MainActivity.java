@@ -1,8 +1,10 @@
 package ferozepurwale.run;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.View;
 
 import com.squareup.okhttp.Callback;
 import com.squareup.okhttp.MediaType;
@@ -48,6 +50,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+    }
+
+    public void buttonClick(View view) {
+        Intent intent = new Intent(this, CameraTest.class);
+        startActivity(intent);
     }
 
 }
