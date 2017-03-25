@@ -46,7 +46,7 @@ public class GameScreen extends AppCompatActivity {
     private static final String TAG = "GameScreen";
     private static final String END_URL = "http://10.196.13.169:8080/end/";
     private final OkHttpClient client = new OkHttpClient();
-    private final int delay = 5000; //milliseconds
+    private final int delay = 1000; //milliseconds
     Handler handler = new Handler();
     Timer stopwatchTimer = new Timer();
 
@@ -54,8 +54,8 @@ public class GameScreen extends AppCompatActivity {
         @Override
         public void run() {
             Log.d(TAG, "refresh");
-            String jsonData = "{" + "\"name\": \"" + "Nihal Singh" + "\","
-                    + "\"email\": \"" + "nihal.111@gmail.com" + "\""
+            String jsonData = "{" + "\"name\": \"" + name + "\","
+                    + "\"email\": \"" + email + "\""
                     + "}";
 
             Log.d(TAG, jsonData);
@@ -117,7 +117,7 @@ public class GameScreen extends AppCompatActivity {
             }
         }
     };
-    private String opponent_name;
+    private String opponent_name, name, email;
     private long startTime = 0;
     private ImageView gameImage;
     private TextView my_scoreTV, opponent_scoreTV, winTV;
@@ -129,6 +129,8 @@ public class GameScreen extends AppCompatActivity {
         setContentView(R.layout.activity_game_screen);
 
         opponent_name = getIntent().getStringExtra("opponent_name");
+        name = getIntent().getStringExtra("name");
+        email = getIntent().getStringExtra("email");
         gameImage = (ImageView) findViewById(R.id.gameImage);
 
         my_scoreTV = (TextView) findViewById(R.id.my_score);
@@ -155,8 +157,8 @@ public class GameScreen extends AppCompatActivity {
     }
 
     private void getPhoto() {
-        String jsonData = "{" + "\"name\": \"" + "Nihal Singh" + "\","
-                + "\"email\": \"" + "nihal.111@gmail.com" + "\""
+        String jsonData = "{" + "\"name\": \"" + name + "\","
+                + "\"email\": \"" + email + "\""
                 + "}";
 
         Log.d(TAG, jsonData);
@@ -313,7 +315,7 @@ public class GameScreen extends AppCompatActivity {
 
         public void run() {
             my_scoreTV.setText((score > 0 ? score : 0) + "/" + total);
-            opponent_scoreTV.setText((opponent_score > 0 ? score : 0) + "/" + total);
+            opponent_scoreTV.setText((opponent_score > 0 ? opponent_score : 0) + "/" + total);
         }
     }
 
@@ -345,8 +347,8 @@ public class GameScreen extends AppCompatActivity {
     }
 
     private void endGame() {
-        String jsonData = "{" + "\"name\": \"" + "Nihal Singh" + "\","
-                + "\"email\": \"" + "nihal.111@gmail.com" + "\""
+        String jsonData = "{" + "\"name\": \"" + name + "\","
+                + "\"email\": \"" + email + "\""
                 + "}";
 
         Log.d(TAG, jsonData);

@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -28,17 +29,17 @@ public class StartGameScreen extends AppCompatActivity {
     private final OkHttpClient client = new OkHttpClient();
     private Boolean stopStartRequests = false;
     Handler handler = new Handler();
-    private final int delay = 5000; //milliseconds
+    private final int delay = 1000; //milliseconds
 
-    private EditText name, email, opponent;
+    private EditText nameET, emailET, opponent;
     private TextView nameTextView, emailTextView, opponentTextView, gameStartText, start;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_screen);
-        name = (EditText) findViewById(R.id.name);
-        email = (EditText) findViewById(R.id.email);
+        nameET = (EditText) findViewById(R.id.name);
+        emailET = (EditText) findViewById(R.id.email);
         opponent = (EditText) findViewById(R.id.opponent);
         nameTextView = (TextView) findViewById(R.id.nameTextView);
         emailTextView = (TextView) findViewById(R.id.emailTextView);
@@ -54,9 +55,9 @@ public class StartGameScreen extends AppCompatActivity {
 
 
 
-    private void startGame(String Name, String Email) {
-        String jsonData = "{" + "\"name\": \"" + "Nihal Singh" + "\","
-                + "\"email\": \"" + "nihal.111@gmail.com" + "\""
+    private void startGame(String name, String email) {
+        String jsonData = "{" + "\"name\": \"" + name + "\","
+                + "\"email\": \"" + email + "\""
                 + "}";
 
         Log.d(TAG, jsonData);
@@ -129,6 +130,9 @@ public class StartGameScreen extends AppCompatActivity {
                     Log.d(TAG, "done");
                     Intent intent = new Intent(StartGameScreen.this, GameScreen.class);
                     intent.putExtra("opponent_name", opponent_name);
+                    intent.putExtra("name", nameET.getText().toString());
+                    intent.putExtra("email", emailET.getText().toString());
+
                     startActivity(intent);
                     handler.removeCallbacks(requestHandler);
                     finish();
@@ -140,15 +144,18 @@ public class StartGameScreen extends AppCompatActivity {
     }
 
     public void onStartGameClick(View view) {
-
-        email.setVisibility(View.INVISIBLE);
-        emailTextView.setVisibility(View.INVISIBLE);
-        email.setEnabled(false);
-        name.setEnabled(false);
-        gameStartText.setVisibility(View.VISIBLE);
-        gameStartText.setText("Finding players online...");
-        start.setEnabled(false);
-        requestHandler.run();
+        if (emailET.getText().toString().isEmpty() || nameET.getText().toString().isEmpty()){
+            Toast.makeText(this, "Please fill in your details", Toast.LENGTH_SHORT).show();
+        } else {
+            emailET.setVisibility(View.INVISIBLE);
+            emailTextView.setVisibility(View.INVISIBLE);
+            emailET.setEnabled(false);
+            nameET.setEnabled(false);
+            gameStartText.setVisibility(View.VISIBLE);
+            gameStartText.setText("Finding players online...");
+            start.setEnabled(false);
+            requestHandler.run();
+        }
     }
 
     public Runnable requestHandler = new Runnable() {
@@ -156,7 +163,7 @@ public class StartGameScreen extends AppCompatActivity {
         public void run() {
             Log.d(TAG, "call");
             if (!stopStartRequests) {
-                startGame(name.getText().toString(), email.getText().toString());
+                startGame(nameET.getText().toString(), emailET.getText().toString());
                 handler.postDelayed(this, delay);
             } else
                 handler.removeCallbacks(requestHandler);
