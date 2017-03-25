@@ -1,18 +1,13 @@
 package ferozepurwale.run;
 
-import android.app.Activity;
-import android.content.Intent;
 import android.graphics.Bitmap;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
-import android.provider.MediaStore;
+import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -27,14 +22,11 @@ import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 
-import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-
-import static com.squareup.picasso.Picasso.with;
 
 
 public class GameScreen extends AppCompatActivity {
@@ -42,13 +34,59 @@ public class GameScreen extends AppCompatActivity {
     public static final MediaType JSON = MediaType.parse("application/json; charset=utf-8");
     static final int REQUEST_TAKE_PHOTO = 1;
     private static final String PHOTO_URL = "http://10.196.16.16:8080/photo/";
+    private static final String myDir = Environment.getExternalStorageDirectory() + "/Run/";
+    private static final String REFRESH_URL = "http://10.196.16.16:8080/refresh/";
     private static final String TAG = "GameScreen";
     private final OkHttpClient client = new OkHttpClient();
-    private final String myDir = Environment.getExternalStorageDirectory() + "/Run/";
-    String mCurrentPhotoPath;
-    private String opponent_name;
-    private long startTime = 0;
-    private ImageView gameImage;
+    private final int delay = 5000; //milliseconds
+    Handler handler = new Handler();
+    public Runnable refreshRequestHandler = new Runnable() {
+        @Override
+        public void run() {
+            Log.d(TAG, "refresh");
+            String jsonData = "{" + "\"name\": \"" + "Nihal Singh" + "\","
+                    + "\"email\": \"" + "nihal.111@gmail.com" + "\""
+                    + "}";
+
+            Log.d(TAG, jsonData);
+
+            RequestBody body = RequestBody.create(JSON, jsonData);
+
+            Request request = new com.squareup.okhttp.Request.Builder()
+                    .url(REFRESH_URL)
+                    .post(body)
+                    .build();
+
+            client.newCall(request).enqueue(new Callback() {
+                @Override
+                public void onFailure(com.squareup.okhttp.Request request, IOException throwable) {
+                    throwable.printStackTrace();
+                }
+
+                @Override
+                public void onResponse(com.squareup.okhttp.Response response) throws IOException {
+                    if (!response.isSuccessful())
+                        throw new IOException("Unexpected code " + response);
+                    else {
+                        final String jsonData = response.body().string();
+                        Log.d(TAG, "Response from " + REFRESH_URL + ": " + jsonData);
+
+                        JsonObject jobj = new Gson().fromJson(jsonData, JsonObject.class);
+                        int score = jobj.get("score").getAsInt();
+                        int win = jobj.get("win").getAsInt();
+                        int opponent_score = jobj.get("opponent_score").getAsInt();
+                        int total_photos = jobj.get("total_photos").getAsInt();
+
+                        RefreshRunnable runnable = new RefreshRunnable();
+                        runnable.setData(score, opponent_score, total_photos);
+                        runOnUiThread(runnable);
+                        Log.d(TAG, "score: " + score + " win: " + win + " opponent_score: " + opponent_score);
+                    }
+                }
+            });
+            handler.postDelayed(this, delay);
+        }
+    };
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
         public void onManagerConnected(int status) {
@@ -69,6 +107,10 @@ public class GameScreen extends AppCompatActivity {
             }
         }
     };
+    private String opponent_name;
+    private long startTime = 0;
+    private ImageView gameImage;
+    private TextView my_scoreTV, opponent_scoreTV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,6 +119,10 @@ public class GameScreen extends AppCompatActivity {
 
         opponent_name = getIntent().getStringExtra("opponent_name");
         gameImage = (ImageView) findViewById(R.id.gameImage);
+
+        my_scoreTV = (TextView) findViewById(R.id.my_score);
+        opponent_scoreTV = (TextView) findViewById(R.id.opponent_score);
+
         startTimer();
 
         getPhoto();
@@ -145,10 +191,13 @@ public class GameScreen extends AppCompatActivity {
                         }
                     }
 
-                    MyRunnable runnable = new MyRunnable();
-                    runnable.setData(photo_url);
+                    PhotoRunnable runnable = new PhotoRunnable();
+                    runnable.setData(photo_url, total_photos);
 
                     runOnUiThread(runnable);
+
+                    handler.removeCallbacks(refreshRequestHandler);
+                    refreshRequestHandler.run();
                 }
             }
         });
@@ -180,48 +229,34 @@ public class GameScreen extends AppCompatActivity {
                 TimeUnit.MILLISECONDS.toSeconds(millis) - TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis)));
     }
 
-    public void dispatchTakePictureIntent(View view) {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        // Ensure that there's a camera activity to handle the intent
-        startActivityForResult(takePictureIntent, REQUEST_TAKE_PHOTO);
-    }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        switch (requestCode) {
-            case REQUEST_TAKE_PHOTO:
-                if (resultCode == Activity.RESULT_OK) {
-                    Bundle extras = data.getExtras();
-                    Bitmap bitmap;
-                    try {
-                        bitmap = (Bitmap) extras.get("data");
-//                        imageView.setImageBitmap(bitmap);
-                        ImageCompare imageCompare = new ImageCompare();
-                        Log.d("PATH", myDir);
-                        Bitmap referenceBitmap = imageCompare.loadImageFromStorage(new File(myDir + "temp.jpg"));
-                        String isSame = imageCompare.compareImages(bitmap, referenceBitmap);
-                        Toast.makeText(this, String.valueOf(isSame), Toast.LENGTH_LONG).show();
-                    } catch (Exception e) {
-                        Toast.makeText(this, "Failed to load", Toast.LENGTH_SHORT)
-                                .show();
-                        Log.e("Camera", e.toString());
-                    }
-                }
-        }
-    }
-
-    public class MyRunnable implements Runnable {
+    public class PhotoRunnable implements Runnable {
         private String photo_url;
+        private int total_photos;
 
-        private void setData(String photo_url) {
+        private void setData(String photo_url, int total_photos) {
             this.photo_url = photo_url;
+            this.total_photos = total_photos;
         }
 
         public void run() {
-            with(GameScreen.this).load(photo_url).into(gameImage);
+            Picasso.with(GameScreen.this).load(photo_url).into(gameImage);
         }
     }
 
+    public class RefreshRunnable implements Runnable {
+        private int opponent_score, score, total;
+
+        private void setData(int score, int opponent_score, int total) {
+            this.score = score;
+            this.opponent_score = opponent_score;
+            this.total = total;
+        }
+
+        public void run() {
+            my_scoreTV.setText((score > 0 ? score : 0) + "/" + total);
+            opponent_scoreTV.setText((opponent_score > 0 ? score : 0) + "/" + total);
+        }
+    }
 
 }

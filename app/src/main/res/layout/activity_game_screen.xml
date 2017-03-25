@@ -4,6 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/activity_game_screen"
     android:layout_width="match_parent"
+    android:background="#eeeeee"
     android:layout_height="match_parent"
     tools:context="ferozepurwale.run.GameScreen">
 
@@ -26,14 +27,112 @@
         android:id="@+id/gameImage" />
 
     <Button
-        android:id="@+id/button2"
-        android:layout_width="wrap_content"
+        android:text="Click Pic!"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/gameImage"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
-        android:text="Click picture"
-        android:onClick="dispatchTakePictureIntent"/>
+
+        android:id="@+id/clickbutton" />
+
+    <!--<RelativeLayout-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:paddingBottom="10dp">-->
+        <!--<com.github.lzyzsd.circleprogress.ArcProgress-->
+            <!--style="?android:attr/progressBarStyleLarge"-->
+            <!--android:layout_width="120dp"-->
+            <!--android:layout_height="120dp"-->
+            <!--android:id="@+id/my_progressbar"-->
+            <!--android:progress="0"-->
+            <!--android:indeterminate="false"-->
+            <!--android:max="10"-->
+            <!--android:layout_marginLeft="50dp"-->
+            <!--android:layout_marginStart="50dp"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentLeft="true"-->
+            <!--android:layout_alignParentStart="true" />-->
+
+        <!--<com.github.lzyzsd.circleprogress.ArcProgress-->
+            <!--style="?android:attr/progressBarStyle"-->
+            <!--android:layout_width="120dp"-->
+            <!--android:layout_height="120dp"-->
+            <!--android:id="@+id/opponent_progressbar"-->
+            <!--android:progress="0"-->
+            <!--android:max="10"-->
+            <!--android:indeterminate="false"-->
+            <!--android:layout_marginRight="50dp"-->
+            <!--android:layout_marginEnd="50dp"-->
+            <!--android:layout_alignParentBottom="true"-->
+            <!--android:layout_alignParentRight="true"-->
+            <!--android:layout_alignParentEnd="true" />-->
+        <!---->
+        <!---->
+
+       <!---->
+    <!--</RelativeLayout>-->
+
+    <TextView
+        android:text="YOU"
+        android:textStyle="bold"
+        android:textColor="#3e2723"
+
+        android:textSize="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView5"
+        android:layout_below="@+id/clickbutton"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="86dp"
+        android:layout_marginStart="86dp"
+        android:layout_marginTop="12dp" />
+
+    <TextView
+        android:text="Akash Trehan"
+        android:textColor="#3e2723"
+
+        android:textSize="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/textView12"
+        android:layout_marginRight="27dp"
+        android:layout_marginEnd="27dp"
+        android:layout_alignBaseline="@+id/textView5"
+        android:layout_alignBottom="@+id/textView5"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="0/10"
+
+        android:textStyle="bold"
+        android:textColor="#3e2723"
+
+        android:textSize="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/my_score"
+        android:layout_below="@+id/textView5"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_marginLeft="50dp"
+        android:layout_marginStart="50dp"
+        android:layout_marginTop="14dp" />
+
+    <TextView
+        android:text="0/10"
+
+        android:textColor="#3e2723"
+
+        android:textSize="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/opponent_score"
+        android:layout_alignBaseline="@+id/my_score"
+        android:layout_alignBottom="@+id/my_score"
+        android:layout_alignLeft="@+id/textView12"
+        android:layout_alignStart="@+id/textView12" />
 
 
 </RelativeLayout>
