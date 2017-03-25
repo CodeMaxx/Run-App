@@ -1,2 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<merger version="3"><dataSet config="main"><source path="/media/Nihal/Code/Run/libraries/opencv/src/main/assets"/><source path="/media/Nihal/Code/Run/libraries/opencv/build/generated/assets/shaders/release"/></dataSet><dataSet config="release"><source path="/media/Nihal/Code/Run/libraries/opencv/src/release/assets"/></dataSet></merger>
