@@ -30,8 +30,8 @@ public class StartGameScreen extends AppCompatActivity {
     Handler handler = new Handler();
     private final int delay = 5000; //milliseconds
 
-    EditText name, email, opponent;
-    TextView nameTextView, emailTextView, opponentTextView, gameStartText, start;
+    private EditText name, email, opponent;
+    private TextView nameTextView, emailTextView, opponentTextView, gameStartText, start;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,6 +131,7 @@ public class StartGameScreen extends AppCompatActivity {
                     Intent intent = new Intent(StartGameScreen.this, GameScreen.class);
                     intent.putExtra("opponent_name", opponent_name);
                     startActivity(intent);
+                    handler.removeCallbacks(requestHandler);
                     finish();
                 }
 
@@ -154,10 +155,10 @@ public class StartGameScreen extends AppCompatActivity {
         @Override
         public void run() {
             Log.d(TAG, "call");
-            startGame(name.getText().toString(), email.getText().toString());
-            if (!stopStartRequests)
+            if (!stopStartRequests) {
+                startGame(name.getText().toString(), email.getText().toString());
                 handler.postDelayed(this, delay);
-            else
+            } else
                 handler.removeCallbacks(requestHandler);
         }
     };
