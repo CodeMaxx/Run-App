@@ -75,9 +75,12 @@ public class GameScreen extends AppCompatActivity {
 
                 @Override
                 public void onResponse(com.squareup.okhttp.Response response) throws IOException {
-                    if (!response.isSuccessful())
+                    if (!response.isSuccessful()) {
+                        EndGameRunnable runnable = new EndGameRunnable();
+                        runnable.setData(-1, total);
+                        runOnUiThread(runnable);
                         throw new IOException("Unexpected code " + response);
-                    else {
+                    } else {
                         final String jsonData = response.body().string();
                         Log.d(TAG, "Response from " + REFRESH_URL + ": " + jsonData);
 
@@ -86,6 +89,7 @@ public class GameScreen extends AppCompatActivity {
                         int win = jobj.get("win").getAsInt();
                         int opponent_score = jobj.get("opponent_score").getAsInt();
                         int total_photos = jobj.get("total_photos").getAsInt();
+                        total = total_photos;
 
                         RefreshRunnable runnable = new RefreshRunnable();
                         runnable.setData(score, opponent_score, total_photos);
@@ -120,8 +124,9 @@ public class GameScreen extends AppCompatActivity {
     private String opponent_name, name, email;
     private long startTime = 0;
     private ImageView gameImage;
-    private TextView my_scoreTV, opponent_scoreTV, winTV;
+    private TextView my_scoreTV, opponent_scoreTV, winTV, opponentScoreNameTag;
     private Button click;
+    private int total;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -132,12 +137,14 @@ public class GameScreen extends AppCompatActivity {
         name = getIntent().getStringExtra("name");
         email = getIntent().getStringExtra("email");
         gameImage = (ImageView) findViewById(R.id.gameImage);
+        opponentScoreNameTag = (TextView) findViewById(R.id.opponentScoreNameTag);
 
         my_scoreTV = (TextView) findViewById(R.id.my_score);
         opponent_scoreTV = (TextView) findViewById(R.id.opponent_score);
         winTV = (TextView) findViewById(R.id.winTV);
         winTV.setVisibility(View.INVISIBLE);
         click = (Button) findViewById(R.id.clickbutton);
+        opponentScoreNameTag.setText(opponent_name);
 
         startTimer();
 
@@ -178,9 +185,12 @@ public class GameScreen extends AppCompatActivity {
 
             @Override
             public void onResponse(com.squareup.okhttp.Response response) throws IOException {
-                if (!response.isSuccessful())
+                if (!response.isSuccessful()) {
+                    EndGameRunnable runnable = new EndGameRunnable();
+                    runnable.setData(-1, total);
+                    runOnUiThread(runnable);
                     throw new IOException("Unexpected code " + response);
-                else {
+                } else {
                     final String jsonData = response.body().string();
                     Log.d(TAG, "Response from " + PHOTO_URL + ": " + jsonData);
 
