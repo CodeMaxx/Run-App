@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.support.annotation.IntegerRes;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
@@ -45,8 +46,9 @@ public class GameScreen extends AppCompatActivity {
     private static final String REFRESH_URL = "http://10.196.13.169:8080/refresh/";
     private static final String TAG = "GameScreen";
     private static final String END_URL = "http://10.196.13.169:8080/end/";
+    private boolean gameOn =true;
     private final OkHttpClient client = new OkHttpClient();
-    private final int delay = 1000; //milliseconds
+    private final int delay = 2000; //milliseconds
     Handler handler = new Handler();
     Timer stopwatchTimer = new Timer();
 
@@ -287,7 +289,7 @@ public class GameScreen extends AppCompatActivity {
                         Bitmap referenceBitmap = imageCompare.loadImageFromStorage(new File(myDir + "/temp.jpg"));
                         String isSame = imageCompare.compareImages(bitmap, referenceBitmap);
                         Toast.makeText(this, String.valueOf(isSame), Toast.LENGTH_LONG).show();
-                        if (isSame.endsWith("1")) {
+                        if (isSame.endsWith("!")) {
                             getPhoto();
                         }
                     } catch (Exception e) {
@@ -324,9 +326,22 @@ public class GameScreen extends AppCompatActivity {
         }
 
         public void run() {
-            my_scoreTV.setText((score > 0 ? score : 0) + "/" + total);
-            opponent_scoreTV.setText((opponent_score > 0 ? opponent_score : 0) + "/" + total);
+            if (gameOn) {
+                int currentScore = Integer.parseInt(my_scoreTV.getText().toString().substring(0, my_scoreTV.getText().toString().indexOf("/")));
+                if (score >= currentScore) {
+                    my_scoreTV.setText((score > 0 ? score : 0) + "/" + total);
+                }
+                int currentOpponentScore = Integer.parseInt(opponent_scoreTV.getText().toString().substring(0, opponent_scoreTV.getText().toString().indexOf("/")));
+                if (opponent_score >= currentOpponentScore) {
+                    opponent_scoreTV.setText((opponent_score > 0 ? opponent_score : 0) + "/" + total);
+                }
+            }
         }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 
     public class EndGameRunnable implements Runnable {
@@ -347,7 +362,9 @@ public class GameScreen extends AppCompatActivity {
             if (win==1) {
                 winTV.setText("You Win");
                 my_scoreTV.setText(total + "/" + total);
+                gameOn = false;
             } else if (win==-1) {
+                gameOn = false;
                 winTV.setText(opponent_name + " wins");
                 opponent_scoreTV.setText(total + "/" + total);
             }

@@ -104,7 +104,7 @@
         android:layout_alignParentEnd="true" />
 
     <TextView
-        android:text="0/10"
+        android:text="0/6"
 
         android:textStyle="bold"
         android:textColor="#3e2723"
@@ -136,7 +136,7 @@
         android:layout_alignParentEnd="true" />
 
     <TextView
-        android:text="0/10"
+        android:text="0/6"
 
         android:textColor="#3e2723"
 

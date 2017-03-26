@@ -24,11 +24,11 @@ import java.util.ArrayList;
 
 public class ImageCompare {
 
-    private int upperThreshold = 3000;
+    private int upperThreshold = 12000;
 
     public String compareImages(Bitmap b1, Bitmap b2) {
-        b1 = Bitmap.createScaledBitmap(b1, 500, 500, true);
-        b2 = Bitmap.createScaledBitmap(b2, 500, 500, true);
+        b1 = Bitmap.createScaledBitmap(b1, 32, 24, true);
+        b2 = Bitmap.createScaledBitmap(b2, 32, 24, true);
         return doStuff(b1, b2);
     }
 
@@ -64,7 +64,8 @@ public class ImageCompare {
 
         double compare = Imgproc.compareHist(hist1, hist2, Imgproc.CV_COMP_CHISQR);
         Log.d("ImageComparator", "compare: " + compare);
-        return (String.valueOf(compare) + " " + ((compare>=0 && compare<upperThreshold)?1:0));
+        return (String.valueOf(compare) + " " + ((compare>=0 && compare<upperThreshold)?"Awesome. Run!":"Please try again"));
+        //return (String.valueOf(compare) + " 1");
     }
 
     @Nullable
