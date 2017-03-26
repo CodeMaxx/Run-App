@@ -96,8 +96,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/opponentScoreNameTag"
-        android:layout_marginRight="27dp"
-        android:layout_marginEnd="27dp"
+        android:layout_marginRight="40dp"
+        android:layout_marginEnd="40dp"
         android:layout_alignBaseline="@+id/textView5"
         android:layout_alignBottom="@+id/textView5"
         android:layout_alignParentRight="true"
@@ -121,20 +121,6 @@
         android:layout_marginTop="14dp" />
 
     <TextView
-        android:text="0/10"
-
-        android:textColor="#3e2723"
-
-        android:textSize="50dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/opponent_score"
-        android:layout_alignBaseline="@+id/my_score"
-        android:layout_alignBottom="@+id/my_score"
-        android:layout_alignLeft="@+id/textView12"
-        android:layout_alignStart="@+id/textView12" />
-
-    <TextView
         android:text="Akash Trehan Wins"
         android:textColor="#3e2723"
         android:textSize="80dp"
@@ -148,6 +134,20 @@
         android:layout_above="@+id/textView5"
         android:layout_alignParentRight="true"
         android:layout_alignParentEnd="true" />
+
+    <TextView
+        android:text="0/10"
+
+        android:textColor="#3e2723"
+
+        android:textSize="50dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/opponent_score"
+        android:layout_alignBaseline="@+id/my_score"
+        android:layout_alignBottom="@+id/my_score"
+        android:layout_alignLeft="@+id/opponentScoreNameTag"
+        android:layout_alignStart="@+id/opponentScoreNameTag" />
 
 
 </RelativeLayout>

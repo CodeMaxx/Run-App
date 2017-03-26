@@ -285,9 +285,9 @@ public class GameScreen extends AppCompatActivity {
                         ImageCompare imageCompare = new ImageCompare();
                         Log.d("PATH", myDir);
                         Bitmap referenceBitmap = imageCompare.loadImageFromStorage(new File(myDir + "/temp.jpg"));
-                        Boolean isSame = imageCompare.compareImages(bitmap, referenceBitmap);
+                        String isSame = imageCompare.compareImages(bitmap, referenceBitmap);
                         Toast.makeText(this, String.valueOf(isSame), Toast.LENGTH_LONG).show();
-                        if (true) {
+                        if (isSame.endsWith("1")) {
                             getPhoto();
                         }
                     } catch (Exception e) {
